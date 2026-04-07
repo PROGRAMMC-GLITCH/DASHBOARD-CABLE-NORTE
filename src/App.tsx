@@ -1319,7 +1319,7 @@ export default function App() {
                 </div>
 
                 <select
-                  value={selMesInt}
+                  value={selMesCab}
                   onChange={(e) => setSelMesCab(e.target.value)}
                   className={`font-black italic text-xs rounded-xl px-6 py-3 outline-none transition-all cursor-pointer shadow-lg
     ${isDark
