@@ -88,7 +88,7 @@ const DetailModal = ({ isOpen, onClose, title, data, showStates = false, isDark 
                 <th className="p-6 text-center min-w-[200px]">
                   <div className="flex flex-col items-center justify-center gap-1">
                     {/* Etiqueta superior */}
-                    
+
 
                     <div className="flex items-center gap-2 h-[35px]">
                       <div className="relative">
@@ -96,8 +96,8 @@ const DetailModal = ({ isOpen, onClose, title, data, showStates = false, isDark 
                           value={filtroDistritoModal}
                           onChange={(e) => setFiltroDistritoModal(e.target.value)}
                           className={`appearance-none font-black italic text-[11px] uppercase outline-none cursor-pointer text-center pl-4 pr-8 py-1.5 rounded-lg border transition-all ${isDark
-                              ? 'bg-white/5 border-white/10 text-emerald-500 hover:border-emerald-500/30'
-                              : 'bg-zinc-100 border-zinc-200 text-emerald-700 hover:border-emerald-500/30'
+                            ? 'bg-white/5 border-white/10 text-emerald-500 hover:border-emerald-500/30'
+                            : 'bg-zinc-100 border-zinc-200 text-emerald-700 hover:border-emerald-500/30'
                             } ${filtroDistritoModal === "" ? (isDark ? "text-zinc-500" : "text-zinc-400") : ""}`}
                         >
                           <option value="" className={isDark ? "bg-[#0a0a0a] text-zinc-500" : "bg-white text-zinc-400"}>
@@ -133,8 +133,8 @@ const DetailModal = ({ isOpen, onClose, title, data, showStates = false, isDark 
 
                     {/* Indicador Neón Inferior */}
                     <div className={`h-[2px] transition-all duration-500 rounded-full ${filtroDistritoModal !== ""
-                        ? "w-12 bg-emerald-500 shadow-[0_0_10px_#10b981]"
-                        : (isDark ? "w-4 bg-zinc-800" : "w-4 bg-zinc-200")
+                      ? "w-12 bg-emerald-500 shadow-[0_0_10px_#10b981]"
+                      : (isDark ? "w-4 bg-zinc-800" : "w-4 bg-zinc-200")
                       }`}></div>
                   </div>
                 </th>
@@ -636,48 +636,65 @@ export default function App() {
       }`}>
 
       {/* HEADER */}
-      <header className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 mb-16 italic font-black pt-10">
-        <div className="flex items-center gap-5">
-          <div className="w-14 h-14 flex items-center justify-center transition-transform hover:scale-110 duration-300">
+      <header className="max-w-[1700px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-8 mb-16 italic font-black pt-10 px-8">
+
+        {/* IZQUIERDA: LOGO Y TÍTULO (Escala Aumentada) */}
+        <div className="flex items-center gap-8 flex-shrink-0 group">
+          <div className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center transition-transform group-hover:scale-105 duration-500">
             <img
               src="/logo.png"
               alt="Finex Logo"
-              className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(16,185,129,0.6)]"
+              className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.8)]"
             />
           </div>
-          <div>
-            <h1 className="text-3xl font-black italic uppercase tracking-tighter leading-none text-[#32CD32] drop-[0_0_15px_rgba(16,185,129,0.7)]">FINEX / CABLE NORTE</h1>
+          <div className="flex flex-col">
+            <h1 className="text-4xl md:text-4x3 font-black italic uppercase tracking-[ -0.05em] leading-none text-[#10b981] drop-shadow-[0_0_25px_rgba(16,185,129,0.5)] whitespace-nowrap">
+              FINEX / CABLE NORTE
+            </h1>
+            <div className="h-1 w-1/2 bg-gradient-to-r from-emerald-500 to-transparent mt-2 rounded-full opacity-50" />
           </div>
         </div>
-        <div className="flex gap-3 w-full md:w-auto">
-          <input
-            value={url}
-            onChange={e => setUrl(e.target.value)}
-            type="text"
-            placeholder="Pegar URL de Google Sheets..."
-            className={`flex-1 md:w-[450px] border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all duration-500 shadow-inner ${isDark
-              ? 'bg-white/5 border-white/10 text-white placeholder-zinc-500 focus:border-emerald-500/50'
-              : 'bg-white border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:border-emerald-500/50 shadow-md'
-              }`}
-          />
-          <button onClick={handleConnect} disabled={loading} className="bg-emerald-500 text-black px-10 py-4 rounded-2xl font-black text-sm hover:bg-emerald-400 flex items-center gap-2 transition-all shadow-xl active:scale-95">
-            {loading ? <RefreshCw className="animate-spin" size={18} /> : <LinkIcon size={18} />}
-            {loading ? 'SINCRO...' : 'CONECTAR'}
-          </button>
+
+        {/* DERECHA: HERRAMIENTAS CONECTADAS (Pegados y a la Derecha) */}
+        <div className="flex items-center gap-4 ml-auto">
+
+          {/* CÁPSULA DE CONECTIVIDAD (Input + Botón integrados) */}
+          <div className={`flex items-center p-1.5 rounded-3xl border transition-all duration-500 shadow-2xl ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-zinc-100 border-zinc-200'
+            }`}>
+            <input
+              value={url}
+              onChange={e => setUrl(e.target.value)}
+              type="text"
+              placeholder="URL de Google Sheets..."
+              className={`w-[250px] md:w-[450px] bg-transparent pl-5 pr-2 py-2 text-xs font-bold outline-none transition-colors ${isDark ? 'text-white placeholder-zinc-600' : 'text-zinc-900 placeholder-zinc-400'
+                }`}
+            />
+            <button
+              onClick={handleConnect}
+              disabled={loading}
+              className="bg-emerald-500 text-black px-6 py-3 rounded-[1.2rem] font-black text-[10px] hover:bg-emerald-400 flex items-center gap-2 transition-all active:scale-95 shadow-xl shadow-emerald-500/20 whitespace-nowrap"
+            >
+              {loading ? <RefreshCw className="animate-spin" size={14} /> : <LinkIcon size={14} />}
+              {loading ? 'SINCRO' : 'CONECTAR'}
+            </button>
+          </div>
+
+          {/* SELECTOR DE TEMA (Separado sutilmente al final) */}
           <button
             onClick={() => setIsDark(!isDark)}
-            className={`p-4 rounded-2xl transition-all duration-500 shadow-xl flex items-center justify-center active:scale-90 ${isDark
-              ? 'bg-white/5 text-yellow-400 hover:bg-white/10 shadow-yellow-500/5'
-              : 'bg-black/5 text-indigo-600 hover:bg-black/10 shadow-indigo-500/5'
+            className={`p-4 rounded-3xl transition-all duration-500 shadow-xl active:scale-90 border ${isDark
+                ? 'bg-white/5 text-yellow-400 border-white/5 hover:bg-white/10'
+                : 'bg-white text-indigo-600 border-zinc-200 hover:bg-zinc-50 shadow-md'
               }`}
           >
-            {isDark ? <Sun size={20} strokeWidth={2.5} /> : <Moon size={20} strokeWidth={2.5} />}
+            {isDark ? <Sun size={22} strokeWidth={2.5} /> : <Moon size={22} strokeWidth={2.5} />}
           </button>
         </div>
+
       </header>
 
       {data && metrics ? (
-        <main className="max-w-7xl mx-auto space-y-10 italic font-black">
+        <main className="max-w-7xl mx-auto space-y-10 px-4 md:px-0 pb-20">
 
 
           {/* TABLA DE ÓRDENES */}
