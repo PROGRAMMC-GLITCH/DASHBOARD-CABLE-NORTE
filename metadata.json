@@ -1,0 +1,5 @@
+{
+  "name": "Cloud Data Dashboard",
+  "description": "A clean platform to visualize cloud Excel data with search, filters, monthly sales charts, and user activity tracking.",
+  "requestFramePermissions": []
+}
