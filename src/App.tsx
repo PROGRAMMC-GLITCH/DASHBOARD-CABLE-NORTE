@@ -24,7 +24,7 @@ const DetailModal = ({ isOpen, onClose, title, data, showStates = false, isDark 
   // 2. Aplicar filtro doble: Búsqueda por Nombre + Selector de Distrito
   const filtered = data.filter((item: any) => {
     const cumpleNombre = (item.cliente || item.nombre || "").toLowerCase().includes(search.toLowerCase());
-    const cumpleDistrito = filtroDistritoModal === "" || item.distrito?.trim() === filtroDistritoModal;
+    const cumpleDistrito = filtroDistritoModal === "" || (item.distrito || "").trim() === filtroDistritoModal;
     return cumpleNombre && cumpleDistrito;
   });
 
@@ -85,7 +85,59 @@ const DetailModal = ({ isOpen, onClose, title, data, showStates = false, isDark 
               <tr className={`text-[10px] font-black uppercase tracking-widest border-b ${isDark ? 'text-white-500 border-white/10' : 'text-white-400 border-white-200'
                 }`}>
                 <th className="p-6">CLIENTE</th>
-                <th className="p-6 text-center ">DISTRITO</th>
+                <th className="p-6 text-center min-w-[200px]">
+                  <div className="flex flex-col items-center justify-center gap-1">
+                    {/* Etiqueta superior */}
+                    
+
+                    <div className="flex items-center gap-2 h-[35px]">
+                      <div className="relative">
+                        <select
+                          value={filtroDistritoModal}
+                          onChange={(e) => setFiltroDistritoModal(e.target.value)}
+                          className={`appearance-none font-black italic text-[11px] uppercase outline-none cursor-pointer text-center pl-4 pr-8 py-1.5 rounded-lg border transition-all ${isDark
+                              ? 'bg-white/5 border-white/10 text-emerald-500 hover:border-emerald-500/30'
+                              : 'bg-zinc-100 border-zinc-200 text-emerald-700 hover:border-emerald-500/30'
+                            } ${filtroDistritoModal === "" ? (isDark ? "text-zinc-500" : "text-zinc-400") : ""}`}
+                        >
+                          <option value="" className={isDark ? "bg-[#0a0a0a] text-zinc-500" : "bg-white text-zinc-400"}>
+                            DISTRITO
+                          </option>
+                          {distritosDisponibles.map(d => (
+                            <option key={d} value={d} className={isDark ? "bg-[#0a0a0a] text-white" : "bg-white text-zinc-800"}>
+                              {d}
+                            </option>
+                          ))}
+                        </select>
+                        <div className={`absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none ${isDark ? 'text-zinc-600' : 'text-zinc-400'
+                          }`}>
+                          <ChevronDown size={12} strokeWidth={3} />
+                        </div>
+                      </div>
+
+                      {/* Botón de Limpieza Cuadrado */}
+                      <AnimatePresence>
+                        {filtroDistritoModal !== "" && (
+                          <motion.button
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            onClick={() => setFiltroDistritoModal("")}
+                            className="w-[30px] h-[30px] flex-shrink-0 flex items-center justify-center bg-red-500/10 border border-red-500/40 text-red-500 rounded-lg hover:bg-red-500 hover:text-black transition-all"
+                          >
+                            <X size={14} strokeWidth={3} />
+                          </motion.button>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    {/* Indicador Neón Inferior */}
+                    <div className={`h-[2px] transition-all duration-500 rounded-full ${filtroDistritoModal !== ""
+                        ? "w-12 bg-emerald-500 shadow-[0_0_10px_#10b981]"
+                        : (isDark ? "w-4 bg-zinc-800" : "w-4 bg-zinc-200")
+                      }`}></div>
+                  </div>
+                </th>
                 <th className="p-6 text-center">DIRECCIÓN</th>
                 <th className="p-6 text-right">TIEMPO</th>
               </tr>
@@ -1624,8 +1676,8 @@ export default function App() {
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 4, repeat: Infinity }}
                 className={`w-40 h-40 mx-auto rounded-[2.5rem] flex items-center justify-center transition-all duration-500 ${isDark
-                    ? 'bg-transparent shadow-[0_0_50px_rgba(16,185,129,0.15)]'
-                    : 'bg-white border-zinc-200 shadow-xl'
+                  ? 'bg-transparent shadow-[0_0_50px_rgba(16,185,129,0.15)]'
+                  : 'bg-white border-zinc-200 shadow-xl'
                   }`}
               >
                 <img
