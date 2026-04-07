@@ -586,11 +586,15 @@ export default function App() {
       {/* HEADER */}
       <header className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 mb-16 italic font-black pt-10">
         <div className="flex items-center gap-5">
-          <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-500/20 rotate-3">
-            <Activity className="text-black" strokeWidth={3} size={28} />
+          <div className="w-14 h-14 flex items-center justify-center transition-transform hover:scale-110 duration-300">
+            <img
+              src="/logo.png"
+              alt="Finex Logo"
+              className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(16,185,129,0.6)]"
+            />
           </div>
           <div>
-            <h1 className="text-3xl font-black italic uppercase tracking-tighter leading-none text-[#10b981] drop-[0_0_15px_rgba(16,185,129,0.7)]">FINEX / CABLE NORTE</h1>
+            <h1 className="text-3xl font-black italic uppercase tracking-tighter leading-none text-[#32CD32] drop-[0_0_15px_rgba(16,185,129,0.7)]">FINEX / CABLE NORTE</h1>
           </div>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
@@ -600,8 +604,8 @@ export default function App() {
             type="text"
             placeholder="Pegar URL de Google Sheets..."
             className={`flex-1 md:w-[450px] border rounded-2xl px-6 py-4 text-sm font-bold outline-none transition-all duration-500 shadow-inner ${isDark
-                ? 'bg-white/5 border-white/10 text-white placeholder-zinc-500 focus:border-emerald-500/50'
-                : 'bg-white border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:border-emerald-500/50 shadow-md'
+              ? 'bg-white/5 border-white/10 text-white placeholder-zinc-500 focus:border-emerald-500/50'
+              : 'bg-white border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:border-emerald-500/50 shadow-md'
               }`}
           />
           <button onClick={handleConnect} disabled={loading} className="bg-emerald-500 text-black px-10 py-4 rounded-2xl font-black text-sm hover:bg-emerald-400 flex items-center gap-2 transition-all shadow-xl active:scale-95">
@@ -924,7 +928,7 @@ export default function App() {
                 <Tv size={28} />
                 <ArrowDownRight size={16} className="absolute -bottom-1 -right-1" />
               </div>
-              <h2 className="text-3xl font-black italic uppercase tracking-tighter leading-none text-[#10b981] drop-[0_0_15px_rgba(16,185,129,0.7)]">
+              <h2 className="text-3xl font-black italic uppercase tracking-tighter leading-none text-[#32CD32] drop-[0_0_15px_rgba(16,185,129,0.7)]">
                 O.S CABLE - REGISTRADAS
               </h2>
             </div>
@@ -1249,7 +1253,7 @@ export default function App() {
               <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 px-2">
                 <div className="flex items-center gap-4">
                   <div className="w-2 h-10 bg-emerald-500 rounded-full shadow-[0_0_15px_#10b981]"></div>
-                  <h2 className={`text-3xl font-black italic uppercase tracking-tighter leading-none text-[#10b981] drop-[0_0_15px_rgba(16,185,129,0.7)]`}>
+                  <h2 className={`text-3xl font-black italic uppercase tracking-tighter leading-none text-[#32CD32] drop-[0_0_15px_rgba(16,185,129,0.7)]`}>
                     HISTÓRICO CABLE
                   </h2>
                 </div>
@@ -1603,16 +1607,69 @@ export default function App() {
 
         </main>
       ) : (
-        <div className="max-w-7xl mx-auto h-[60vh] flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-[3rem] bg-[#080808]">
+        <div className="max-w-7xl mx-auto h-[75vh] flex flex-col items-center justify-center relative overflow-hidden">
 
-          <motion.div animate={{ rotate: 360 }} transition={{ duration: 5, repeat: Infinity, ease: "linear" }}>
-            <Activity className="w-16 h-16 text-zinc-800 mb-6" />
+          {/* Efecto de luz ambiental (Glow) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-center relative z-10"
+          >
+            {/* Icono Principal con Animación de Pulso */}
+            <div className="relative mb-10">
+              <motion.div
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 4, repeat: Infinity }}
+                className={`w-40 h-40 mx-auto rounded-[2.5rem] flex items-center justify-center transition-all duration-500 ${isDark
+                    ? 'bg-transparent shadow-[0_0_50px_rgba(16,185,129,0.15)]'
+                    : 'bg-white border-zinc-200 shadow-xl'
+                  }`}
+              >
+                <img
+                  src="/logo.png"
+                  alt="Finex Welcome"
+                  className="w-32 h-32 object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.5)]"
+                />
+              </motion.div>
+
+              {/* El adorno pequeño verde se mantiene si deseas para dar un toque técnico */}
+              <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg rotate-12">
+                <Activity className="text-black w-6 h-6" strokeWidth={3} />
+              </div>
+            </div>
+
+            {/* Textos de Bienvenida */}
+            <h1 className={`text-5xl md:text-6xl font-black italic uppercase tracking-tighter leading-[0.9] mb-6 transition-colors duration-500 ${isDark ? 'text-white' : 'text-zinc-900'
+              }`}>
+              Bienvenido al <br />
+              <span className="text-lime-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">Sistema Cable Norte</span>
+            </h1>
+
+            <p className={`text-[12px] font-black uppercase tracking-[0.5em] mb-12 italic ${isDark ? 'text-zinc-500' : 'text-zinc-400'
+              }`}>
+              Core System • Gestión de Servicios
+            </p>
+
+            {/* Call to Action sutil */}
+            <div className={`inline-flex items-center gap-4 px-8 py-4 rounded-2xl border transition-all duration-500 ${isDark
+              ? 'bg-white/[0.02] border-white/5 text-zinc-500'
+              : 'bg-zinc-100 border-zinc-200 text-zinc-400'
+              }`}>
+              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
+              <span className="text-[10px] font-black uppercase tracking-widest">
+                Esperando vinculación de Google Sheets...
+              </span>
+            </div>
           </motion.div>
 
-          <p className="text-zinc-600 font-black  uppercase tracking-[0.4em] text-xs text-center leading-relaxed italic">
-            Sincronización de Datos <br />
-            <span className="text-zinc-800 font-bold tracking-normal mt-2 block  text-[10px]">Ingresa la URL pública de tu Google Sheet</span>
-          </p>
+          {/* Marca de agua decorativa al fondo */}
+          <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[150px] font-black italic uppercase pointer-events-none opacity-[0.02] select-none ${isDark ? 'text-white' : 'text-black'
+            }`}>
+            FINEX
+          </div>
         </div>
       )}
 
