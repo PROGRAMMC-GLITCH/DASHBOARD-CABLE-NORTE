@@ -636,61 +636,52 @@ export default function App() {
       }`}>
 
       {/* HEADER */}
-      <header className="max-w-[1700px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-8 mb-16 italic font-black pt-10 px-8">
+      <header className="max-w-[1700px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-6 mb-12 italic font-black pt-6 md:pt-10 px-4 md:px-8">
 
-        {/* IZQUIERDA: LOGO Y TÍTULO (Escala Aumentada) */}
-        <div className="flex items-center gap-8 flex-shrink-0 group">
-          <div className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center transition-transform group-hover:scale-105 duration-500">
-            <img
-              src="/logo.png"
-              alt="Finex Logo"
-              className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.8)]"
-            />
-          </div>
-          <div className="flex flex-col">
-            <h1 className="text-4xl md:text-4x3 font-black italic uppercase tracking-[ -0.05em] leading-none text-[#10b981] drop-shadow-[0_0_25px_rgba(16,185,129,0.5)] whitespace-nowrap">
-              FINEX / CABLE NORTE
+        {/* IZQUIERDA: Marca y Botón de Tema (Se alinean en fila en mobile) */}
+        <div className="flex items-center justify-between w-full lg:w-auto gap-4 md:gap-8">
+          <div className="flex items-center gap-4 md:gap-8">
+            <div className="w-12 h-12 md:w-20 md:h-20 lg:w-24 lg:h-24 flex-shrink-0">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
+            </div>
+            <h1 className="text-xl md:text-4xl lg:text-6xl font-black italic uppercase tracking-tighter leading-none text-[#10b981] drop-shadow-[0_0_20px_rgba(16,185,129,0.4)]">
+              FINEX / <br className="lg:hidden" /> CABLE NORTE
             </h1>
-            <div className="h-1 w-1/2 bg-gradient-to-r from-emerald-500 to-transparent mt-2 rounded-full opacity-50" />
+          </div>
+
+          {/* Botón Tema en Mobile (visible solo en pantallas pequeñas dentro de esta fila) */}
+          <div className="lg:hidden">
+            <button onClick={() => setIsDark(!isDark)} className={`p-3 rounded-2xl border ${isDark ? 'bg-white/5 text-yellow-400 border-white/5' : 'bg-white text-indigo-600 border-zinc-200'}`}>
+              {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
           </div>
         </div>
 
-        {/* DERECHA: HERRAMIENTAS CONECTADAS (Pegados y a la Derecha) */}
-        <div className="flex items-center gap-4 ml-auto">
-
-          {/* CÁPSULA DE CONECTIVIDAD (Input + Botón integrados) */}
-          <div className={`flex items-center p-1.5 rounded-3xl border transition-all duration-500 shadow-2xl ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-zinc-100 border-zinc-200'
+        {/* DERECHA: Dock de herramientas (Se expande en mobile, se pega a la derecha en PC) */}
+        <div className="flex items-center gap-3 w-full lg:w-auto ml-auto">
+          <div className={`flex flex-1 lg:flex-none items-center p-1.5 rounded-3xl border transition-all duration-500 shadow-2xl ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-zinc-100 border-zinc-200'
             }`}>
             <input
               value={url}
               onChange={e => setUrl(e.target.value)}
               type="text"
-              placeholder="URL de Google Sheets..."
-              className={`w-[250px] md:w-[450px] bg-transparent pl-5 pr-2 py-2 text-xs font-bold outline-none transition-colors ${isDark ? 'text-white placeholder-zinc-600' : 'text-zinc-900 placeholder-zinc-400'
+              placeholder="URL de Sheets..."
+              className={`flex-1 w-full md:w-[300px] lg:w-[450px] bg-transparent pl-4 pr-2 py-2 text-[10px] md:text-xs font-bold outline-none ${isDark ? 'text-white placeholder-zinc-600' : 'text-zinc-900 placeholder-zinc-400'
                 }`}
             />
-            <button
-              onClick={handleConnect}
-              disabled={loading}
-              className="bg-emerald-500 text-black px-6 py-3 rounded-[1.2rem] font-black text-[10px] hover:bg-emerald-400 flex items-center gap-2 transition-all active:scale-95 shadow-xl shadow-emerald-500/20 whitespace-nowrap"
-            >
+            <button onClick={handleConnect} disabled={loading} className="bg-emerald-500 text-black px-4 md:px-6 py-2.5 md:py-3 rounded-[1.1rem] font-black text-[9px] md:text-[10px] hover:bg-emerald-400 flex items-center gap-2 transition-all active:scale-95">
               {loading ? <RefreshCw className="animate-spin" size={14} /> : <LinkIcon size={14} />}
-              {loading ? 'SINCRO' : 'CONECTAR'}
+              <span>{loading ? '...' : 'CONECTAR'}</span>
             </button>
           </div>
 
-          {/* SELECTOR DE TEMA (Separado sutilmente al final) */}
-          <button
-            onClick={() => setIsDark(!isDark)}
-            className={`p-4 rounded-3xl transition-all duration-500 shadow-xl active:scale-90 border ${isDark
-                ? 'bg-white/5 text-yellow-400 border-white/5 hover:bg-white/10'
-                : 'bg-white text-indigo-600 border-zinc-200 hover:bg-zinc-50 shadow-md'
-              }`}
-          >
-            {isDark ? <Sun size={22} strokeWidth={2.5} /> : <Moon size={22} strokeWidth={2.5} />}
-          </button>
+          {/* Botón Tema en PC (visible solo en pantallas grandes) */}
+          <div className="hidden lg:block">
+            <button onClick={() => setIsDark(!isDark)} className={`p-4 rounded-3xl border transition-all shadow-xl active:scale-90 ${isDark ? 'bg-white/5 text-yellow-400 border-white/5' : 'bg-white text-indigo-600 border-zinc-200'}`}>
+              {isDark ? <Sun size={22} /> : <Moon size={22} />}
+            </button>
+          </div>
         </div>
-
       </header>
 
       {data && metrics ? (
@@ -1133,8 +1124,8 @@ export default function App() {
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={selMesInt ? metrics.statsInternetGlobal.barData.filter((d: any) => d.name === selMesInt) : metrics.statsInternetGlobal.barData}
-                        margin={{ top: 70, right: 30, left: 0, bottom: 100 }}
-                        barGap={2}
+                        margin={{ top: 50, right: 20, left: -25, bottom: 20 }}
+                        barGap={1}
                         barCategoryGap="15%"
                       >
                         <defs>
@@ -1150,7 +1141,7 @@ export default function App() {
                         <XAxis
                           dataKey="name"
                           stroke={isDark ? "#fff" : "#666"} // <-- Cambia según el tema
-                          fontSize={12}
+                          fontSize={10}
                           fontWeight="900"
                           axisLine={{ stroke: isDark ? '#333' : '#ddd' }} // <-- Línea base dinámica
                           tickLine={false}
@@ -1160,7 +1151,7 @@ export default function App() {
 
                         <YAxis
                           stroke={isDark ? "#444" : "#999"} // <-- Números laterales dinámicos
-                          fontSize={12}
+                          fontSize={10}
                           fontWeight="bold"
                           axisLine={false}
                           tickLine={false}
@@ -1177,7 +1168,7 @@ export default function App() {
                           <LabelList
                             dataKey="Instalaciones"
                             position="top"
-                            offset={12}
+                            offset={10}
                             formatter={(val: number) => val > 0 ? val : ""}
                             style={{ fill: '#2eb872', fontSize: '12px', fontWeight: '900', fontStyle: 'italic' }}
                           />
@@ -1200,7 +1191,7 @@ export default function App() {
                           <LabelList
                             dataKey="Reconexiones"
                             position="top"
-                            offset={12}
+                            offset={10}
                             formatter={(val: number) => val > 0 ? val : ""}
                             style={{ fill: '#cc66ff', fontSize: '12px', fontWeight: '900', fontStyle: 'italic' }}
                           />
@@ -1210,7 +1201,7 @@ export default function App() {
                           <LabelList
                             dataKey="Recuperaciones"
                             position="top"
-                            offset={12}
+                            offset={10}
                             formatter={(val: number) => val > 0 ? val : ""}
                             style={{ fill: '#3399ff', fontSize: '12px', fontWeight: '900', fontStyle: 'italic' }}
                           />
@@ -1220,7 +1211,7 @@ export default function App() {
                           <LabelList
                             dataKey="Servicio Técnico"
                             position="top"
-                            offset={12}
+                            offset={10}
                             formatter={(val: number) => val > 0 ? val : ""}
                             style={{ fill: '#ff9933', fontSize: '12px', fontWeight: '900', fontStyle: 'italic' }}
                           />
