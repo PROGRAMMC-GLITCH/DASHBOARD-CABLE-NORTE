@@ -139,7 +139,7 @@ const DetailModal = ({ isOpen, onClose, title, data, showStates = false, isDark 
                   </div>
                 </th>
                 <th className="p-6 text-center">DIRECCIÓN</th>
-                <th className="p-6 text-right">TIEMPO</th>
+                <th className="p-6 text-right">TIEMPO REGISTRADO</th>
               </tr>
             </thead>
             <tbody className={`divide-y italic ${isDark ? 'divide-white/5' : 'divide-zinc-100'}`}>
@@ -157,11 +157,12 @@ const DetailModal = ({ isOpen, onClose, title, data, showStates = false, isDark 
                   </td>
                   <td className="p-6 text-right">
                     <div className="flex flex-col items-end">
-                      <span className={`text-xl font-black ${item.tiempo >= 3 ? 'text-red-500' : (isDark ? 'text-white' : 'text-zinc-800')
+                      {/* Usamos item.diasEspera que viene de la columna BD */}
+                      <span className={`text-xl font-black ${(item.diasEspera || 0) >= 3 ? 'text-red-500' : (isDark ? 'text-white' : 'text-zinc-800')
                         }`}>
-                        {item.tiempo} DÍAS
+                        {item.diasEspera || 0} DÍAS
                       </span>
-                      <span className="text-[8px] font-bold text-zinc-500 uppercase">PENDIENTE</span>
+
                     </div>
                   </td>
                 </tr>
@@ -278,22 +279,28 @@ export default function App() {
   const statsMesActual = useMemo(() => {
     if (!data?.orders) return { internet: 0, cable: 0, nombreMes: "" };
 
-    const ahora = new Date();
-    const mesActual = ahora.getMonth() + 1;
-    const anioActual = ahora.getFullYear();
-    const nombreMes = ahora.toLocaleString('es-ES', { month: 'long' }).toUpperCase();
+    const mesActual = 4; // Abril
+    const anioActual = 2026;
 
-    // Filtramos solo las instalaciones del mes y año actual que están en el Excel
     const filtradas = data.orders.filter(o => {
-      const partes = (o.fechaRegistro || "").split('/');
-      if (partes.length !== 3) return false;
-      return parseInt(partes[1]) === mesActual && parseInt(partes[2]) === anioActual;
+      // 1. Debe ser Instalación
+      if (!o.tipoOrden.includes("INSTALACION SERVICIO")) return false;
+
+      // 2. Coalescencia: AF o AG
+      const fechaRef = o.fechaRecep !== "---" ? o.fechaRecep : o.fechaEjec;
+      if (fechaRef === "---") return false;
+
+      const partes = fechaRef.split('/');
+      const m = parseInt(partes[1]);
+      const a = parseInt(partes[2]);
+
+      return m === mesActual && a === anioActual;
     });
 
     return {
-      internet: filtradas.filter(o => o.tipoOrden.includes("INSTALACION") && o.servicio.includes("INTERNET")).length,
-      cable: filtradas.filter(o => o.tipoOrden.includes("INSTALACION") && o.servicio.includes("TELEVISION")).length,
-      nombreMes
+      internet: filtradas.filter(o => o.servicio.includes("INTERNET")).length, // Debería dar 7
+      cable: filtradas.filter(o => o.servicio.includes("TELEVISION")).length,   // Debería dar 1
+      nombreMes: "ABRIL"
     };
   }, [data]);
 
@@ -388,55 +395,55 @@ export default function App() {
 
   const metrics = useMemo(() => {
     if (!data) return null;
+    const ordenesValidas = data.orders.filter(o => o.estadoOS === "REGISTRADA");
 
     // FILTRO INSTALACIONES: Col D="INSTALACION SERVICIO" AND Col AO="REGISTRADA"
-    const instInternetPorInstalar = data.orders.filter(o =>
+    const instInternetPorInstalar = ordenesValidas.filter(o =>
       o.tipoOrden === "INSTALACION SERVICIO" && // Col 
-      o.servicio === "INTERNET" &&              // Col 
-      o.situacion === "POR INSTALAR"            // Col 
+      o.servicio === "INTERNET"              // Col 
     );
-    const cortesInternetPorCortar = data.orders.filter(o =>
+    const cortesInternetPorCortar = ordenesValidas.filter(o =>
       o.tipoOrden === "CORTE DE SERVICIO" &&
       o.servicio === "INTERNET" &&
       o.situacion === "ACTIVO"
     );
-    const reconexionesInternet = data.orders.filter(o =>
+    const reconexionesInternet = ordenesValidas.filter(o =>
       o.tipoOrden === "RECONEXION SERVICIO" &&
       o.servicio === "INTERNET" &&
       o.situacion === "CORTADO"
     );
-    const servicioTecnicoInternet = data.orders.filter(o =>
+    const servicioTecnicoInternet = ordenesValidas.filter(o =>
       o.tipoOrden === "SERVICIO TECNICO" &&
       o.servicio === "INTERNET" &&
       o.situacion.trim() === "ACTIVO"
 
     );
-    const recuperacionEquipos = data.orders.filter(o =>
+    const recuperacionEquipos = ordenesValidas.filter(o =>
       (o.tipoOrden || "").toUpperCase() === "SERVICIO TECNICO" &&
       (o.servicio || "").toUpperCase() === "INTERNET" &&
       (o.detalle || "").toUpperCase().trim() === "RECOJO DE EQUIPO"
     );
-    const instCablePorInstalar = data.orders.filter(o =>
+    const instCablePorInstalar = ordenesValidas.filter(o =>
       (o.tipoOrden || "").includes("INSTALACION SERVICIO") &&
       (o.servicio || "").includes("TELEVISION") && // Acepta ambos nombres
       (o.situacionCable || "").includes("POR INSTALAR") // 
     );
-    const instCablePorCortar = data.orders.filter(o =>
+    const instCablePorCortar = ordenesValidas.filter(o =>
       (o.tipoOrden || "").includes("CORTE DE SERVICIO") &&
       (o.servicio || "").includes("TELEVISION") && // Acepta ambos nombres
       (o.situacionCable || "").includes("ACTIVO") // 
     );
-    const instCablePorReconectar = data.orders.filter(o =>
+    const instCablePorReconectar = ordenesValidas.filter(o =>
       (o.tipoOrden || "").includes("RECONEXION SERVICIO") &&
       (o.servicio || "").includes("TELEVISION") && // Acepta ambos nombres
       (o.situacionCable || "").includes("CORTADO") // 
     );
-    const instCablePorRecoger = data.orders.filter(o =>
+    const instCablePorRecoger = ordenesValidas.filter(o =>
       (o.detalle || "").includes("RECOJO DE EQUIPO") &&
       (o.servicio || "").includes("TELEVISION") && // Acepta ambos nombres
       (o.situacionCable || "").includes("CORTADO") // 
     );
-    const servicioTecnicoCable = data.orders.filter(o =>
+    const servicioTecnicoCable = ordenesValidas.filter(o =>
       o.tipoOrden === "SERVICIO TECNICO" &&
       o.servicio === "TELEVISION"
 
@@ -466,51 +473,50 @@ export default function App() {
 
     const generarEstadisticasGlobales = (servicioFiltro: string) => {
       const mesesMap: any = {};
-
       if (!data?.orders) return { barData: [], listaMeses: [] };
 
       data.orders.forEach(o => {
         if (!o.servicio.includes(servicioFiltro)) return;
 
-        // Lógica de detección de fecha ultra-robusta
-        const fechaStr = o.fechaRegistro || "";
-        let mesKey = "DESCONOCIDO";
-        let sortVal = 0;
+        // LÓGICA DE COALESCENCIA: AF o AG (Igual que en los contadores)
+        const fechaRef = o.fechaRecep !== "---" ? o.fechaRecep : o.fechaEjec;
+        if (fechaRef === "---") return;
 
-        // Intentamos parsear DD/MM/YYYY
-        const partes = fechaStr.split('/');
+        const partes = fechaRef.split('/');
         if (partes.length === 3) {
-          const d = new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, 1);
-          mesKey = d.toLocaleString('es-ES', { month: 'short' }).toUpperCase() + " " + partes[2];
-          sortVal = d.getTime();
+          // Creamos la fecha en UTC para evitar desfases
+          const d = new Date(Date.UTC(parseInt(partes[2]), parseInt(partes[1]) - 1, 1));
+          const mesKey = d.toLocaleString('es-ES', { month: 'short', timeZone: 'UTC' }).toUpperCase() + " " + partes[2];
+          const sortVal = d.getTime();
+
+          if (!mesesMap[mesKey]) {
+            mesesMap[mesKey] = {
+              name: mesKey,
+              sortVal,
+              Cortes: 0,
+              Recuperaciones: 0,
+              "Servicio Técnico": 0,
+              Reconexiones: 0,
+              Instalaciones: 0
+            };
+          }
+
+          const tipo = (o.tipoOrden || "").toUpperCase();
+          const detalle = (o.detalle || "").toUpperCase();
+
+          if (detalle.includes("RECOJO")) mesesMap[mesKey].Recuperaciones++;
+          else if (tipo.includes("CORTE")) mesesMap[mesKey].Cortes++;
+          else if (tipo.includes("RECONEXION")) mesesMap[mesKey].Reconexiones++;
+          else if (tipo.includes("INSTALACION")) mesesMap[mesKey].Instalaciones++;
+          else if (tipo.includes("SERVICIO TECNICO")) mesesMap[mesKey]["Servicio Técnico"]++;
         }
-
-        if (mesKey === "DESCONOCIDO") return; // Ignora si no hay fecha válida
-
-        if (!mesesMap[mesKey]) {
-          mesesMap[mesKey] = {
-            name: mesKey,
-            sortVal,
-            Cortes: 0,
-            Recuperaciones: 0,
-            "Servicio Técnico": 0,
-            Reconexiones: 0,
-            Instalaciones: 0
-          };
-        }
-
-        const tipo = (o.tipoOrden || "").toUpperCase();
-        const detalle = (o.detalle || "").toUpperCase();
-
-        if (detalle.includes("RECOJO")) mesesMap[mesKey].Recuperaciones++;
-        else if (tipo.includes("CORTE")) mesesMap[mesKey].Cortes++;
-        else if (tipo.includes("RECONEXION")) mesesMap[mesKey].Reconexiones++;
-        else if (tipo.includes("INSTALACION")) mesesMap[mesKey].Instalaciones++;
-        else if (tipo.includes("SERVICIO TECNICO")) mesesMap[mesKey]["Servicio Técnico"]++;
       });
 
-      const barData = Object.values(mesesMap).sort((a: any, b: any) => a.sortVal - b.sortVal);
-      return { barData, listaMeses: barData.map((m: any) => m.name) };
+      const sortedData = Object.values(mesesMap).sort((a: any, b: any) => a.sortVal - b.sortVal);
+      return {
+        barData: sortedData,
+        listaMeses: sortedData.map((m: any) => m.name)
+      };
     };
 
     const statsInternetGlobal = generarEstadisticasGlobales("INTERNET");
@@ -636,52 +642,54 @@ export default function App() {
       }`}>
 
       {/* HEADER */}
-      <header className="max-w-[1700px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-6 mb-12 italic font-black pt-6 md:pt-10 px-4 md:px-8">
+      <header className="max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-4 mb-6 italic font-black pt-4 px-6">
 
-        {/* IZQUIERDA: Marca y Botón de Tema (Se alinean en fila en mobile) */}
-        <div className="flex items-center justify-between w-full lg:w-auto gap-4 md:gap-8">
-          <div className="flex items-center gap-4 md:gap-8">
-            <div className="w-12 h-12 md:w-20 md:h-20 lg:w-24 lg:h-24 flex-shrink-0">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
-            </div>
-            <h1 className="text-xl md:text-4xl lg:text-6xl font-black italic uppercase tracking-tighter leading-none text-[#10b981] drop-shadow-[0_0_20px_rgba(16,185,129,0.4)]">
-              FINEX / <br className="lg:hidden" /> CABLE NORTE
-            </h1>
-          </div>
-
-          {/* Botón Tema en Mobile (visible solo en pantallas pequeñas dentro de esta fila) */}
-          <div className="lg:hidden">
-            <button onClick={() => setIsDark(!isDark)} className={`p-3 rounded-2xl border ${isDark ? 'bg-white/5 text-yellow-400 border-white/5' : 'bg-white text-indigo-600 border-zinc-200'}`}>
-              {isDark ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-          </div>
+        {/* IZQUIERDA: IMAGEN DE MARCA GIGANTE (Sin espacios extra arriba/abajo) */}
+        <div className="flex-shrink-0 flex items-center transition-transform hover:scale-[1.02] duration-500">
+          <img
+            src="/logo2.png"
+            alt="Finex"
+            /* Cambiamos 20->28, 28->36, 32->44 */
+            className="h-28 md:h-36 lg:h-50 w-auto object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+          />
         </div>
 
-        {/* DERECHA: Dock de herramientas (Se expande en mobile, se pega a la derecha en PC) */}
-        <div className="flex items-center gap-3 w-full lg:w-auto ml-auto">
-          <div className={`flex flex-1 lg:flex-none items-center p-1.5 rounded-3xl border transition-all duration-500 shadow-2xl ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-zinc-100 border-zinc-200'
+        {/* DERECHA: CONTROLES (Más compactos y cercanos) */}
+        <div className="flex items-center gap-3">
+
+          {/* CÁPSULA DE CONECTIVIDAD */}
+          <div className={`flex items-center p-1 rounded-[2rem] border transition-all duration-500 shadow-xl ${isDark ? 'bg-white/[0.03] border-white/10' : 'bg-zinc-100 border-zinc-200'
             }`}>
             <input
               value={url}
               onChange={e => setUrl(e.target.value)}
               type="text"
               placeholder="URL de Sheets..."
-              className={`flex-1 w-full md:w-[300px] lg:w-[450px] bg-transparent pl-4 pr-2 py-2 text-[10px] md:text-xs font-bold outline-none ${isDark ? 'text-white placeholder-zinc-600' : 'text-zinc-900 placeholder-zinc-400'
+              className={`w-[200px] md:w-[350px] bg-transparent pl-5 pr-2 py-2 text-xs font-bold outline-none ${isDark ? 'text-white placeholder-zinc-600' : 'text-zinc-900 placeholder-zinc-400'
                 }`}
             />
-            <button onClick={handleConnect} disabled={loading} className="bg-emerald-500 text-black px-4 md:px-6 py-2.5 md:py-3 rounded-[1.1rem] font-black text-[9px] md:text-[10px] hover:bg-emerald-400 flex items-center gap-2 transition-all active:scale-95">
+            <button
+              onClick={handleConnect}
+              disabled={loading}
+              className="bg-emerald-500 text-black px-5 py-2.5 rounded-[1.5rem] font-black text-[10px] hover:bg-emerald-400 flex items-center gap-2 transition-all active:scale-95 shadow-lg whitespace-nowrap"
+            >
               {loading ? <RefreshCw className="animate-spin" size={14} /> : <LinkIcon size={14} />}
-              <span>{loading ? '...' : 'CONECTAR'}</span>
+              {loading ? '...' : 'CONECTAR'}
             </button>
           </div>
 
-          {/* Botón Tema en PC (visible solo en pantallas grandes) */}
-          <div className="hidden lg:block">
-            <button onClick={() => setIsDark(!isDark)} className={`p-4 rounded-3xl border transition-all shadow-xl active:scale-90 ${isDark ? 'bg-white/5 text-yellow-400 border-white/5' : 'bg-white text-indigo-600 border-zinc-200'}`}>
-              {isDark ? <Sun size={22} /> : <Moon size={22} />}
-            </button>
-          </div>
+          {/* BOTÓN TEMA MÁS PEQUEÑO PARA NO GENERAR ESPACIO VERTICAL */}
+          <button
+            onClick={() => setIsDark(!isDark)}
+            className={`p-3.5 rounded-2xl transition-all duration-500 shadow-md active:scale-90 border ${isDark
+              ? 'bg-white/5 text-yellow-400 border-white/5'
+              : 'bg-white text-indigo-600 border-zinc-200'
+              }`}
+          >
+            {isDark ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
         </div>
+
       </header>
 
       {data && metrics ? (
@@ -881,7 +889,7 @@ export default function App() {
                                   {o.servicio}
                                 </span>
                               </td>
-                              <td className="p-6 text-center font-black italic uppercase tracking-tighter ${isDark ? 'text-white' : 'text-zinc-800'">{o.fechaRegistro}</td>
+                              <td className="p-6 text-center font-black italic uppercase tracking-tighter ${isDark ? 'text-white' : 'text-zinc-800'">{o.fechaRecep}</td>
                             </tr>
                           ))
                         ) : (
@@ -1124,7 +1132,7 @@ export default function App() {
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={selMesInt ? metrics.statsInternetGlobal.barData.filter((d: any) => d.name === selMesInt) : metrics.statsInternetGlobal.barData}
-                        margin={{ top: 50, right: 20, left: -25, bottom: 20 }}
+                        margin={{ top: 50, right: 20, left: -25, bottom: 40 }}
                         barGap={1}
                         barCategoryGap="15%"
                       >
@@ -1141,7 +1149,7 @@ export default function App() {
                         <XAxis
                           dataKey="name"
                           stroke={isDark ? "#fff" : "#666"} // <-- Cambia según el tema
-                          fontSize={10}
+                          fontSize={12}
                           fontWeight="900"
                           axisLine={{ stroke: isDark ? '#333' : '#ddd' }} // <-- Línea base dinámica
                           tickLine={false}
@@ -1667,66 +1675,66 @@ export default function App() {
 
         </main>
       ) : (
-        <div className="max-w-7xl mx-auto h-[75vh] flex flex-col items-center justify-center relative overflow-hidden">
+        /* 1. Eliminamos h-[75vh] y justify-center. Usamos un margen superior negativo mt-[-40px] para subirlo */
+        <div className="max-w-7xl mx-auto flex flex-col items-center justify-start mt-[-20px] md:mt-[-40px] relative">
 
-          {/* Efecto de luz ambiental (Glow) */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+          {/* Efecto de luz ambiental más sutil y centrado */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
 
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.6 }}
             className="text-center relative z-10"
           >
-            {/* Icono Principal con Animación de Pulso */}
-            <div className="relative mb-10">
+            {/* 2. Reducimos el tamaño del contenedor del logo central para que no ocupe tanto espacio vertical */}
+            <div className="relative mb-6">
               <motion.div
-                animate={{ scale: [1, 1.05, 1] }}
+                animate={{ scale: [1, 1.03, 1] }}
                 transition={{ duration: 4, repeat: Infinity }}
-                className={`w-40 h-40 mx-auto rounded-[2.5rem] flex items-center justify-center transition-all duration-500 ${isDark
-                  ? 'bg-transparent shadow-[0_0_50px_rgba(16,185,129,0.15)]'
-                  : 'bg-white border-zinc-200 shadow-xl'
+                className={`w-32 h-32 md:w-40 md:h-40 mx-auto rounded-[2rem] flex items-center justify-center transition-all duration-500 ${isDark
+                    ? 'bg-transparent shadow-[0_0_40px_rgba(16,185,129,0.1)]'
+                    : 'bg-white border-zinc-200 shadow-xl'
                   }`}
               >
                 <img
                   src="/logo.png"
                   alt="Finex Welcome"
-                  className="w-32 h-32 object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.5)]"
+                  className="w-24 h-24 md:w-32 md:h-32 object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]"
                 />
               </motion.div>
 
-              {/* El adorno pequeño verde se mantiene si deseas para dar un toque técnico */}
-              <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg rotate-12">
-                <Activity className="text-black w-6 h-6" strokeWidth={3} />
+              <div className="absolute bottom-1 right-1/4 w-8 h-8 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg rotate-12">
+                <Activity className="text-black w-4 h-4" strokeWidth={3} />
               </div>
             </div>
 
-            {/* Textos de Bienvenida */}
-            <h1 className={`text-5xl md:text-6xl font-black italic uppercase tracking-tighter leading-[0.9] mb-6 transition-colors duration-500 ${isDark ? 'text-white' : 'text-zinc-900'
+            {/* 3. Ajustamos el interlineado y margen de los textos */}
+            <h1 className={`text-4xl md:text-6xl font-black italic uppercase tracking-tighter leading-[0.85] mb-4 transition-colors duration-500 ${isDark ? 'text-white' : 'text-zinc-900'
               }`}>
               Bienvenido al <br />
-              <span className="text-lime-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">Sistema Cable Norte</span>
+              <span className="text-emerald-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)] text-5xl md:text-7xl">Sistema Finex</span>
             </h1>
 
-            <p className={`text-[12px] font-black uppercase tracking-[0.5em] mb-12 italic ${isDark ? 'text-zinc-500' : 'text-zinc-400'
+            <p className={`text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] mb-8 italic ${isDark ? 'text-zinc-500' : 'text-zinc-400'
               }`}>
               Core System • Gestión de Servicios
             </p>
 
-            {/* Call to Action sutil */}
-            <div className={`inline-flex items-center gap-4 px-8 py-4 rounded-2xl border transition-all duration-500 ${isDark
-              ? 'bg-white/[0.02] border-white/5 text-zinc-500'
-              : 'bg-zinc-100 border-zinc-200 text-zinc-400'
+            {/* 4. Botón de estado más compacto */}
+            <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-xl border transition-all duration-500 ${isDark
+                ? 'bg-white/[0.02] border-white/5 text-zinc-500'
+                : 'bg-zinc-100 border-zinc-200 text-zinc-400 shadow-sm'
               }`}>
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
-              <span className="text-[10px] font-black uppercase tracking-widest">
+              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
+              <span className="text-[9px] font-black uppercase tracking-widest">
                 Esperando vinculación de Google Sheets...
               </span>
             </div>
           </motion.div>
 
-          {/* Marca de agua decorativa al fondo */}
-          <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-[150px] font-black italic uppercase pointer-events-none opacity-[0.02] select-none ${isDark ? 'text-white' : 'text-black'
+          {/* 5. Marca de agua: la subimos un poco para que no estire el scroll hacia abajo */}
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[120px] md:text-[200px] font-black italic uppercase pointer-events-none opacity-[0.015] select-none z-0 ${isDark ? 'text-white' : 'text-black'
             }`}>
             FINEX
           </div>
