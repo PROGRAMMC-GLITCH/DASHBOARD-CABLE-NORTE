@@ -671,7 +671,7 @@ export default function App() {
             <button
               onClick={handleConnect}
               disabled={loading}
-              className="bg-emerald-500 text-black px-5 py-2.5 rounded-[1.5rem] font-black text-[10px] hover:bg-emerald-400 flex items-center gap-2 transition-all active:scale-95 shadow-lg whitespace-nowrap"
+              className="bg-green-500 text-black px-5 py-2.5 rounded-[1.5rem] font-black text-[10px] hover:bg-emerald-400 flex items-center gap-2 transition-all active:scale-95 shadow-lg whitespace-nowrap"
             >
               {loading ? <RefreshCw className="animate-spin" size={14} /> : <LinkIcon size={14} />}
               {loading ? '...' : 'CONECTAR'}
@@ -1693,8 +1693,8 @@ export default function App() {
                 animate={{ scale: [1, 1.03, 1] }}
                 transition={{ duration: 4, repeat: Infinity }}
                 className={`w-32 h-32 md:w-40 md:h-40 mx-auto rounded-[2rem] flex items-center justify-center transition-all duration-500 ${isDark
-                    ? 'bg-transparent shadow-[0_0_40px_rgba(16,185,129,0.1)]'
-                    : 'bg-white border-zinc-200 shadow-xl'
+                  ? 'bg-transparent shadow-[0_0_40px_rgba(16,185,129,0.1)]'
+                  : 'bg-white border-zinc-200 shadow-xl'
                   }`}
               >
                 <img
@@ -1713,7 +1713,7 @@ export default function App() {
             <h1 className={`text-4xl md:text-6xl font-black italic uppercase tracking-tighter leading-[0.85] mb-4 transition-colors duration-500 ${isDark ? 'text-white' : 'text-zinc-900'
               }`}>
               Bienvenido al <br />
-              <span className="text-emerald-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)] text-5xl md:text-7xl">Sistema Finex</span>
+              <span className="text-green-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)] text-5xl md:text-7xl">Sistema Finex</span>
             </h1>
 
             <p className={`text-[10px] md:text-[12px] font-black uppercase tracking-[0.4em] mb-8 italic ${isDark ? 'text-zinc-500' : 'text-zinc-400'
@@ -1723,8 +1723,8 @@ export default function App() {
 
             {/* 4. Botón de estado más compacto */}
             <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-xl border transition-all duration-500 ${isDark
-                ? 'bg-white/[0.02] border-white/5 text-zinc-500'
-                : 'bg-zinc-100 border-zinc-200 text-zinc-400 shadow-sm'
+              ? 'bg-white/[0.02] border-white/5 text-zinc-500'
+              : 'bg-zinc-100 border-zinc-200 text-zinc-400 shadow-sm'
               }`}>
               <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
               <span className="text-[9px] font-black uppercase tracking-widest">
